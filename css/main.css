@@ -15,7 +15,6 @@ html, body {
 
 .game-info {
     width: 20vh;
-    margin:50px;
     margin: 0 auto;
 }
 
@@ -26,14 +25,15 @@ html, body {
 
 .current-player {
     color: green;
-    font-size:3em;
-    font-weight:400;
+    font-size: 3em;
+    font-weight: 400;
     transition: font ease 500ms;
 }
+
 .gameBoardContainer {
     margin: 0 auto;
-    height:10vh;
-    width:10vh;
+    height: 10vh;
+    width: 10vh;
 }
 
 .gameBoard {
@@ -44,29 +44,51 @@ html, body {
     border-width: 3px;
     border-style: solid;
     grid-template:
-      'tl tm tr'
-      'l m r'
-      'bl bm br';
+        'tl tm tr'
+        'l m r'
+        'bl bm br';
 }
 
 .gameBoardGrid {
-    display:block;
+    display: block;
     border-color: red;
     border-width: 1px;
     border-style: solid;
-    height:100%;
-    width:100%;
-    text-align:center;
+    text-align: center;
 }
 
-.tl { grid-area: tl; }
-.tm {grid-area: tm; }
-.tr { grid-area: tr; }
+.tl {
+    grid-area: tl;
+}
 
-.l { grid-area: l; }
-.m { grid-area: m; }
-.r { grid-area: r; }
+.tm {
+    grid-area: tm;
+}
 
-.bl { grid-area: bl; }
-.bm { grid-area: bm; }
-.br { grid-area: br; }
+.tr {
+    grid-area: tr;
+}
+
+.l {
+    grid-area: l;
+}
+
+.m {
+    grid-area: m;
+}
+
+.r {
+    grid-area: r;
+}
+
+.bl {
+    grid-area: bl;
+}
+
+.bm {
+    grid-area: bm;
+}
+
+.br {
+    grid-area: br;
+}
