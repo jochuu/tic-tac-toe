@@ -395,6 +395,7 @@ document
 		let choice = e.target.id;
 		if (game.getGameStart()) {
 			document.getElementById('error-message').innerHTML = '';
+			game.playTurn(choice);
 		} else if (!game.getGameStart() && game.getGameEnd()) {
 			displayController.validPlayerNames();
 			document.getElementById(
@@ -443,7 +444,6 @@ divCollection.resetGameButton.onclick = () => {
 		).innerHTML = `Error: Can't reset on first round`;
 	}
 };
-
 divCollection.player1Input.onkeyup = () => {
 	player1.setName(divCollection.player1Input.value);
 };
