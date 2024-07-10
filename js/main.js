@@ -385,7 +385,7 @@ const displayController = (function () {
 	};
 })();
 
-// // Main
+// Main
 let player1 = game.createPlayer();
 let player2 = game.createPlayer();
 
