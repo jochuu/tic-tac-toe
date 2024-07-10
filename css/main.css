@@ -192,6 +192,8 @@ input {
 
 .game-button {
     color: var(--accent-1);
+    height: 100%;
+    width: 100%;
     background: transparent;
     border-radius: 0;
     border-width: 0;
@@ -200,7 +202,7 @@ input {
 }
 
 .game-button:hover {
-    margin-bottom: 3vh;
+    padding-bottom: 3vh;
     color: var(--accent-1);
     background: transparent;
 }
