@@ -1,6 +1,78 @@
+@font-face {
+    font-family: 'glacial_indifferencebold';
+    src: url('../fonts/glacialindifference-bold-webfont.woff2') format('woff2'),
+        url('../fonts/glacialindifference-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'glacial_indifferenceitalic';
+    src: url('../fonts/glacialindifference-italic-webfont.woff2') format('woff2'),
+        url('../fonts/glacialindifference-italic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'glacial_indifferenceregular';
+    src: url('../fonts/glacialindifference-regular-webfont.woff2') format('woff2'),
+        url('../fonts/glacialindifference-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+:root {
+    --main: #2a2c4b;
+    --accent-1: #ecd4c4;
+    --accent-2: #8ea5a5;
+    --white: #fcfcfc;
+    --black: #333333;
+    --red: #ecc4c4;
+    --red2: #e65d5d;
+    font-family: 'glacial_indifferenceregular', sans-serif;
+    background: var(--main);
+    color: var(--white);
+    /* background: bottom 0px right 0px no-repeat url("images/w.jpg"); */
+    /* background-size: auto; */
+    text-transform: lowercase;
+    letter-spacing: 0.07rem;
+}
+
+
 html, body {
     width: 100%;
     height: 100%;
+    color: var(--accent-1);
+}
+
+button {
+    margin: 2vh auto;
+    letter-spacing: 0.07rem;
+    padding: 2vh;
+    border-radius: 10px;
+    background: var(--main);
+    color: var(--accent-1);
+    border-style: solid;
+    border-color: var(--accent-1);
+    transition: all ease 666ms;
+}
+
+button:hover {
+    background-color: var(--accent-1);
+    color: var(--main);
+}
+
+input {
+    border-radius: 10px;
+    padding: 1vh;
+    background: var(--accent-1);
+    color: var(--main);
+    margin: 0 auto;
+    letter-spacing: 0.07rem;
 }
 
 .container {
@@ -11,37 +83,94 @@ html, body {
 .playerContainer {
     display: flex;
     width: 100%;
+    height: max-content;
+    padding: 1vh;
+}
+
+.highlight {
+    background-color: var(--red);
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom-width: 5px;
+
+    border-color: var(--red2);
+    /* transition: all 700ms ease; */
 }
 
 .game-info {
-    width: 20vh;
+    width: 60%;
     margin: 0 auto;
 }
 
 .player-info {
-    width: 20vh;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-flow: column nowrap;
     margin: 0 auto;
+    transition: padding 700ms ease;
+}
+
+.player-info>input {
+    transition: all 333ms ease;
+    text-align: center;
+}
+
+
+.player-info>input::placeholder {
+    border: 0;
+    color: var(--main);
+    text-align: center;
+}
+
+.player-info>input:focus {
+    border-color: var(--accent-1);
+    color: var(--accent-1);
+    background-color: var(--main);
+    text-align: center;
+}
+
+
+.player-info>input:hover {
+    border-color: var(--accent-1);
+    color: var(--accent-1);
+    background-color: var(--main);
+    text-align: center;
 }
 
 .current-player {
-    color: green;
-    font-size: 3em;
+    color: var(--main);
+    background-color: var(--accent-1);
     font-weight: 400;
-    transition: font ease 500ms;
 }
+
+.current-player:hover {
+    background-color: var(--main);
+    color: var(--accent-1);
+}
+
+
+.player-info>button {
+    margin: 0 auto;
+}
+
+
 
 .gameBoardContainer {
     margin: 0 auto;
-    height: 10vh;
-    width: 10vh;
 }
 
 .gameBoard {
+    width: max-content;
+    height: max-content;
+    margin: 0 auto;
     display: grid;
     grid-template-rows: 33% 33% 33%;
     grid-template-columns: 33% 33% 33%;
-    border-color: red;
-    border-width: 3px;
+    border-radius: 12px;
+    border-color: var(--accent-1);
+    border-width: 10px;
     border-style: solid;
     grid-template:
         'tl tm tr'
@@ -50,45 +179,100 @@ html, body {
 }
 
 .gameBoardGrid {
-    display: block;
-    border-color: red;
-    border-width: 1px;
-    border-style: solid;
-    text-align: center;
+    display: flex;
+    align-self: center;
+    justify-self: center;
+    height: 10vh;
+    width: 10vh;
+    margin: 0 auto;
+    outline-width: 3px;
+    outline-offset: 0px;
+    outline-style: double;
 }
 
-.tl {
+.game-button {
+    color: var(--accent-1);
+    background: transparent;
+    border-radius: 0;
+    border-width: 0;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.game-button:hover {
+    margin-bottom: 3vh;
+    color: var(--accent-1);
+    background: transparent;
+}
+
+.game-symbol {
+    font-size: 5vh;
+    color: var(--accent-1);
+    margin: 0 auto;
+}
+
+#turn-number {
+    font-size: 2vh;
+    transition: all 700ms ease;
+}
+
+#winner {
+    height: 3vh;
+    margin: 1vh;
+    font-size: 3vh;
+}
+
+#error-message {
+    margin: 3vh;
+}
+
+#player1-symbol>i {
+    margin: 2vh;
+    font-size: 5vh;
+}
+
+#player2-symbol>i {
+    margin: 2vh;
+    font-size: 5vh;
+}
+
+
+#error-message {
+    margin: 0 auto;
+}
+
+#tl {
     grid-area: tl;
 }
 
-.tm {
+#tm {
     grid-area: tm;
 }
 
-.tr {
+#tr {
     grid-area: tr;
 }
 
-.l {
+#l {
     grid-area: l;
 }
 
-.m {
+#m {
     grid-area: m;
 }
 
-.r {
+#r {
     grid-area: r;
 }
 
-.bl {
+#bl {
     grid-area: bl;
 }
 
-.bm {
+#bm {
     grid-area: bm;
 }
 
-.br {
+#br {
     grid-area: br;
 }

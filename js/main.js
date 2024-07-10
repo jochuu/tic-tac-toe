@@ -35,7 +35,7 @@ const game = (function () {
 		return gameBoard.board;
 	};
 	const getBoardStatus = (position) => {
-		return gameBoard.board.position;
+		return gameBoard.board[position];
 	};
 
 	// logic
@@ -48,13 +48,18 @@ const game = (function () {
 			gameEnd: false,
 			gameWinner: null,
 		},
-		excludedLines: { row: {}, column: {}, diagonal: {} },
-		validPosition: function (position) {
-			return game.getBoardStatus(position) === null;
+		excludedLines: {
+			row: { top: false, middle: false, right: false },
+			column: { left: false, middle: false, bottom: false },
+			diagonal: { topleftbottomright: false, bottomlefttopright: false },
 		},
-		check: function (gameBoard, player) {
-			const { name, wins, symbol } = player.info();
-
+		validPosition: function (position) {
+			console.log(game.getBoardStatus(position) === null ? true : false);
+			return game.getBoardStatus(position) === null ? true : false;
+		},
+		check: function () {
+			const symbol = gameController.gameState.curPlayer.info().symbol;
+			console.log(`symbol: ${symbol}`);
 			let winningLines = {
 				row: {
 					top: [gameBoard.board.tl, gameBoard.board.tm, gameBoard.board.tr],
@@ -161,63 +166,64 @@ const game = (function () {
 						: (gameController.excludedLines.diagonal.bottomlefttopright = true);
 				}
 			}
+
 			return gameController.gameState.gameEnd;
 		},
 		play: function (position) {
-			if (gameController.validPosition(position)) {
-				// if not valid position, return gameBoard in it's current state
-				console.log('pick new position');
-				return gameBoard;
+			if (gameController.gameState.gameEnd !== true) {
+				if (!gameController.validPosition(position)) {
+					return false;
+				} else {
+					gameBoard.setBoard(
+						gameController.gameState.curPlayer,
+						gameBoard,
+						position,
+					);
+					newBoardLayout = gameBoard.board;
+					gameController.gameState.turnNumber++;
+					gameController.check();
+					return true;
+				}
+			}
+		},
+		endGame: function (win) {
+			gameController.gameState.gameStart = false;
+			if (win) {
+				gameController.gameState.gameWinner =
+					gameController.gameState.curPlayer.info().name;
 			} else {
-				// play the move
-				// console.log(gameController.gameState.curPlayer, gameBoard, position);
-				newBoard = gameBoard.setBoard(
-					gameController.gameState.curPlayer,
-					gameBoard,
-					position,
-				);
-				newBoardLayout = gameBoard.board;
-				gameController.turnNumber++;
-				const { player1, player2 } = gameController.gameState.allPlayers;
-				return newBoard;
+				gameController.gameState.gameWinner = 'Draw';
 			}
 		},
 	};
-	const endGame = () => {
-		gameController.gameState.gameStart = false;
-		gameController.gameState.gameWinner =
-			gameController.gameState.curPlayer.info().name;
-	};
-	const initialise = (allPlayers) => {
-		const { player1, player2 } = allPlayers;
+
+	const initialise = (player1, player2) => {
 		gameController.gameState.gameEnd = false;
 		gameController.gameState.gameWinner = null;
 		gameController.gameState.gameStart = true;
 		gameController.gameState.turnNumber = 1;
-		gameController.gameState.allPlayers = allPlayers;
+		gameController.gameState.allPlayers = { player1, player2 };
 		gameController.gameState.curPlayer = player1;
-		displayController.showPlayerInfo();
-		displayController.updateTurn();
-		displayController.updateWinner();
 	};
 	const playTurn = (position) => {
-		if (!gameController.gameState.gameEnd) {
-			const allPlayers = gameController.gameState.allPlayers;
-			const { player1, player2 } = gameController.gameState.allPlayers;
-			const curPlayer = gameController.gameState.curPlayer;
-			const newBoard = gameController.play(position);
-			gameController.check(newBoard, curPlayer);
-			if (!gameController.gameState.gameEnd) {
+		const validMove = gameController.play(position);
+		const gameEnd = gameController.gameState.gameEnd;
+		if (validMove) {
+			if (gameController.gameState.turnNumber > 9) {
+				gameController.endGame(false);
+			}
+			if (!gameController.gameState.gameStart === false) {
+			}
+			if (!gameEnd && gameController.gameState.gameStart === true) {
 				gameController.gameState.curPlayer = // change current player
 					gameController.gameState.curPlayer === player1 ? player2 : player1;
-			} else {
-				console.log(gameController.gameState.curPlayer);
+			}
+			console.log(gameEnd);
+			if (gameEnd) {
 				gameController.gameState.curPlayer.win();
+				gameController.endGame(true);
 			}
 		}
-		displayController.updateBoard(newBoard);
-		displayController.updateTurn();
-		displayController.updateWinner();
 	};
 
 	const getCurrentPlayer = () => gameController.gameState.curPlayer;
@@ -225,15 +231,20 @@ const game = (function () {
 	const getGameStart = () => gameController.gameState.gameStart;
 	const getGameEnd = () => gameController.gameState.gameEnd;
 	const getWinner = () => gameController.gameState.gameWinner;
-	const restart = () => {
+	const restart = (player1, player2) => {
 		gameBoard.clearBoard();
 		displayController.clearBoard();
-		initialise(gameController.gameState.allPlayers);
+		gameController.excludedLines = {
+			row: { top: false, middle: false, right: false },
+			column: { left: false, middle: false, bottom: false },
+			diagonal: { topleftbottomright: false, bottomlefttopright: false },
+		};
+		initialise(player1, player2);
 	};
 	// player
-	const createPlayer = (playerName) => {
+	const createPlayer = () => {
 		let playerInfo = {
-			name: playerName,
+			name: '',
 			wins: 0,
 			symbol: '',
 		};
@@ -242,8 +253,7 @@ const game = (function () {
 			win: () => {
 				game.getGameEnd() && game.getGameStart()
 					? ++playerInfo.wins
-					: console.log('naughty');
-				game.endGame();
+					: console.log('how did this happen');
 			},
 			setName: (name) => (playerInfo.name = name),
 			setSymbol: (symbol) => (playerInfo.symbol = symbol),
@@ -262,93 +272,205 @@ const game = (function () {
 		initialise,
 		playTurn,
 		restart,
-		endGame,
 	};
 })();
 
+const divCollection = {
+	curPlayerDiv: document.getElementById('current-player'),
+	player1Input: document.getElementById('player1-name-input'),
+	player2Input: document.getElementById('player2-name-input'),
+	player1Div: document.getElementById('player1-name'),
+	player2Div: document.getElementById('player2-name'),
+	turnNumberDiv: document.getElementById('turn-number'),
+	winnerDiv: document.getElementById('winner'),
+	startGameButton: document.getElementById('start-game'),
+	resetGameButton: document.getElementById('reset-game'),
+	toggleNameButton: document.getElementById('toggle-name'),
+};
+
 // Display
 const displayController = (function () {
-	const divCollection = {
-		curPlayerDiv: document.getElementById('current-player'),
-		player1Div: document.getElementById('player1-name'),
-		player2Div: document.getElementById('player2-name'),
-		turnNumberDiv: document.getElementById('turn-number'),
-		winnerDiv: document.getElementById('winner'),
+	const updateDisplay = () => {
+		updateBoard();
+		updateTurn();
+		updateWinner();
+		showPlayerInfo();
 	};
-	const updateBoard = (gameBoard) => {
+	const updateBoard = () => {
+		let b = game.getBoard();
+		let positions = Object.keys(b);
+		positions.forEach((position) => {
+			document.getElementById(position).innerHTML =
+				b[position] === null ? '-' : b[position];
+			if (b[position] === 'x') {
+				document.getElementById(
+					position,
+				).innerHTML = `<i class='game-symbol fa-solid fa-x'></i>`;
+			}
+			if (b[position] === 'o') {
+				document.getElementById(
+					position,
+				).innerHTML = `<i class='game-symbol fa-solid fa-o'></i>`;
+			}
+		});
+	};
+	const clearBoard = () => {
 		let b = game.getBoard();
 		let positions = Object.keys(b);
 		positions.forEach(
 			(position) =>
-				(document.getElementsByClassName(position)[0].innerHTML =
-					b[position] === null ? '-' : b[position]),
-		);
-	};
-	const clearBoard = (gameBoard) => {
-		let b = game.getBoard();
-		let positions = Object.keys(b);
-		positions.forEach(
-			(position) =>
-				(document.getElementsByClassName(position)[0].innerHTML =
+				(document.getElementById(position).innerHTML =
 					b[position] !== '-' ? '-' : '-'),
 		);
 	};
 	const updateWinner = () => {
-		divCollection.winnerDiv.innerHTML = `${game.getWinner()}`;
+		if (game.getWinner() === 'Draw') {
+			divCollection.winnerDiv.innerHTML = `Draw`;
+			document.getElementById(
+				'error-message',
+			).innerHTML = `Game over, reset to play again`;
+		} else if (game.getWinner() !== null) {
+			divCollection.winnerDiv.innerHTML = `${game.getWinner()} wins!`;
+		}
 	};
 	const updateTurn = () => {
-		if (
-			divCollection.curPlayerDiv.innerHTML ===
-			divCollection.player1Div.innerHTML
-		) {
+		divCollection.curPlayerDiv.innerHTML = `${
+			game.getCurrentPlayer().info().name
+		}`;
+		if (game.getCurrentPlayer() === player1) {
 			divCollection.player2Div.classList.remove('current-player');
 			divCollection.player1Div.classList.add('current-player');
 		} else {
 			divCollection.player1Div.classList.remove('current-player');
 			divCollection.player2Div.classList.add('current-player');
 		}
-		divCollection.turnNumberDiv.innerHTML = `${game.getTurnNumber()}`;
+		divCollection.turnNumberDiv.innerHTML = `Turn: ${game.getTurnNumber()}`;
+		return game.getTurnNumber();
 	};
+	const validPlayerNames = () => {
+		const player1NameMissing = divCollection.player1Input.value.trim() === '';
+		const player2NameMissing = divCollection.player2Input.value.trim() === '';
+		let bothValid = false;
+
+		player1NameMissing
+			? divCollection.player1Input.classList.add('highlight')
+			: divCollection.player1Input.classList.remove('highlight');
+
+		player2NameMissing
+			? divCollection.player2Input.classList.add('highlight')
+			: divCollection.player1Input.classList.remove('highlight');
+
+		!player1NameMissing && !player2NameMissing
+			? (bothValid = true)
+			: (bothValid = false);
+
+		return bothValid;
+	};
+
 	const showPlayerInfo = () => {
 		const { name: p1name, wins: p1wins, symbol: p1symbol } = player1.info();
 		const { name: p2name, wins: p2wins, symbol: p2symbol } = player2.info();
-		// const { p2name: name, wins, symbol } = player2.info();
+
 		document.getElementById('player1-name').innerHTML = `${p1name}`;
-		document.getElementById('player1-wins').innerHTML = `${p1wins}`;
-		document.getElementById('player1-symbol').innerHTML = `${p1symbol}`;
+		document.getElementById('player1-wins').innerHTML = `Wins: ${p1wins}`;
 		document.getElementById('player2-name').innerHTML = `${p2name}`;
-		document.getElementById('player2-wins').innerHTML = `${p2wins}`;
-		document.getElementById('player2-symbol').innerHTML = `${p2symbol}`;
+		document.getElementById('player2-wins').innerHTML = `Wins: ${p2wins}`;
+		return true;
 	};
-	return { updateBoard, updateWinner, updateTurn, showPlayerInfo, clearBoard };
+
+	return {
+		updateDisplay,
+		validPlayerNames,
+		clearBoard,
+	};
 })();
 
 // // Main
+let player1 = game.createPlayer();
+let player2 = game.createPlayer();
 
-// //create players
-const player1 = game.createPlayer('bob');
-const player2 = game.createPlayer('alice');
-// set symbols
-player1.setSymbol('x');
-player2.setSymbol('o');
-// // initialise game
-game.initialise({ player1, player2 });
+document
+	.getElementsByClassName('gameBoard')[0]
+	.addEventListener('click', (e) => {
+		let choice = e.target.id;
+		if (game.getGameStart()) {
+			document.getElementById('error-message').innerHTML = '';
+		} else if (!game.getGameStart() && game.getGameEnd()) {
+			displayController.validPlayerNames();
+			document.getElementById(
+				'error-message',
+			).innerHTML = `Game over, reset to play again`;
+		} else {
+			displayController.validPlayerNames();
+			document.getElementById(
+				'error-message',
+			).innerHTML = `Press start to play`;
+		}
+		displayController.updateDisplay();
+	});
 
-//play game 1
-game.playTurn('tl');
-game.playTurn('tm');
-game.playTurn('l');
-game.playTurn('tr');
-game.playTurn('bl');
-game.restart();
-game.playTurn('tl');
-game.playTurn('tm');
-game.playTurn('l');
-game.playTurn('tr');
-game.playTurn('bl');
-game.restart();
-game.playTurn('tl');
-game.playTurn('tm');
-game.playTurn('l');
-game.playTurn('tr');
-game.playTurn('bl');
+divCollection.startGameButton.onclick = () => {
+	if (!displayController.validPlayerNames()) {
+		document.getElementById('error-message').innerHTML =
+			'Error: Missing player names';
+		return false;
+	} else {
+		document.getElementById('error-message').innerHTML = '';
+	}
+	divCollection.player1Input.hidden = true;
+	divCollection.player2Input.hidden = true;
+	divCollection.player1Div.hidden = false;
+	divCollection.player2Div.hidden = false;
+	player1.setSymbol('x');
+	player2.setSymbol('o');
+	game.initialise(player1, player2);
+	divCollection.startGameButton.hidden = true;
+	divCollection.resetGameButton.hidden = false;
+	displayController.updateDisplay();
+};
+
+divCollection.resetGameButton.onclick = () => {
+	if (game.getTurnNumber() > 1) {
+		divCollection.player1Div.classList.remove('current-player');
+		divCollection.player2Div.classList.remove('current-player');
+		game.restart(player1, player2);
+		document.getElementById('error-message').innerHTML = ``;
+		divCollection.winnerDiv.innerHTML = ``;
+		displayController.updateDisplay();
+	} else {
+		document.getElementById(
+			'error-message',
+		).innerHTML = `Error: Can't reset on first round`;
+	}
+};
+
+divCollection.player1Input.onkeyup = () => {
+	player1.setName(divCollection.player1Input.value);
+};
+divCollection.player2Input.onkeyup = () => {
+	player2.setName(divCollection.player2Input.value);
+};
+
+divCollection.player1Div.onclick = () => {
+	const hidden = divCollection.player1Input.hidden;
+	if (hidden) {
+		divCollection.player1Input.hidden = false;
+		divCollection.player1Div.classList.remove('current-player');
+		divCollection.player1Div.innerHTML = 'save changes';
+	} else {
+		divCollection.player1Input.hidden = true;
+		displayController.updateDisplay();
+	}
+};
+
+divCollection.player2Div.onclick = () => {
+	const hidden = divCollection.player2Input.hidden;
+	if (hidden) {
+		divCollection.player2Input.hidden = false;
+		divCollection.player2Div.classList.remove('current-player');
+		divCollection.player2Div.innerHTML = 'save changes';
+	} else {
+		divCollection.player2Input.hidden = true;
+		displayController.updateDisplay();
+	}
+};
