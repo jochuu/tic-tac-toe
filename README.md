@@ -1,16 +1,17 @@
 # tic-tac-toe
 
-wip
-
-TODO: 
-- win() in createPlayer needs to be moved to gameLogic
-- add reset board function for when game ends
-- add dom elements to play game (don't forget something on dom to show if invalid move)
-- make it pretty
+responsive layout tic-tac-toe game
 
 technologies used:
+
 - HTML
 - CSS
 - JS (with a focus on module and factory design patterns)
+
+learning notes:
+
+- over-engineered the solution which made it take a long time to achieve things without constantly breaking the game code (also led to me getting lazy towards the end so the code has become messier than intended due to it taking longer than expected)
+- playTurn() doesn't return whether the move is valid or not (this happens in play()) so unable to add error message when reselecting a taken grid square
+- responsive layouts are easier if made mobile first
 
 [live demo](https://jochuu.github.io/tic-tac-toe/)
