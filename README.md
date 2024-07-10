@@ -1,6 +1,15 @@
 # tic-tac-toe
 
 responsive layout tic-tac-toe game
+features:
+
+- play multiple rounds and track wins per player
+- change and update player name at any time
+
+future features:
+
+- allow player to choose symbol
+- choose which player goes first
 
 technologies used:
 
